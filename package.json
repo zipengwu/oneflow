@@ -1,0 +1,27 @@
+{
+  "name": "oneflow",
+  "version": "0.0.1",
+  "description": "oneflow desciption",
+  "author": "Zipeng WU",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zipengwu/oneflow.git"
+  },
+  "keywords": [
+    "react",
+    "rx",
+    "flow",
+    "stream",
+    "redux",
+    "flux"
+  ],
+  "dependencies": {
+    "react": "^15.3.2",
+    "rxjs": "^5.0.0-beta.12"
+  }
+}
