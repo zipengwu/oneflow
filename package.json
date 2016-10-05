@@ -1,6 +1,6 @@
 {
   "name": "oneflow",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "oneflow desciption",
   "author": "Zipeng WU",
   "license": "MIT",
@@ -20,8 +20,7 @@
     "redux",
     "flux"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "react": "^15.3.2",
     "rxjs": "^5.0.0-beta.12",
