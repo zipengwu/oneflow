@@ -13,8 +13,6 @@ let stateFlow = flow.scan((oldState, newState) => {
     return state;
 });
 
-let initState = (state) => flow.next(state);
-
 let connect = (WrappedComponent) => {
     class Connect extends Component {
         componentWillMount() {
@@ -28,7 +26,10 @@ let connect = (WrappedComponent) => {
     return Connect;
 }
 
-export {flow, connect, initState, debug};
+let next = (state) => flow.next(state);
+let initState = next;
+
+export {connect, next, initState, debug};
 
 
 
