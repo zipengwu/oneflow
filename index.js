@@ -5,12 +5,14 @@ let _debug = false;
 let debug = (flag) => _debug = flag;
 
 let flow = new Rx.BehaviorSubject({});
-let stateFlow = flow.scan((oldState, newState) => {
-    let state = Object.assign(oldState, newState)
+let stateFlow = flow.scan((currentState, update) => {
+    let change = update instanceof Function ? update(currentState) : update;
+    let newState = Object.assign(currentState, change);
     if (_debug) {
-        console.log(`newState: ${JSON.stringify(state)}`);
+        console.log(`change: ${JSON.stringify(change)}`);
+        console.log(`newState: ${JSON.stringify(newState)}`);
     }
-    return state;
+    return newState;
 });
 
 let connect = (WrappedComponent) => {
