@@ -3,7 +3,7 @@ var webpack = require('webpack');
 
 module.exports = {  
     entry: {
-        app: ['./index.js']
+        app: ['./src/oneflow.js']
     },
     externals: {
     'react': 'react',
@@ -22,7 +22,7 @@ module.exports = {
           exclude: /node_modules/, 
           loader: "babel", 
           query: {
-            presets:['react','es2015', 'stage-2']
+            presets:['react', 'es2015', 'stage-2']
           }
           },
       ]
