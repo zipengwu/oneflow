@@ -1,5 +1,6 @@
 .idea/
+src/
 node_modules
 coverage
 npm-debug.log
-webpack.config.js
+*.spec.js
