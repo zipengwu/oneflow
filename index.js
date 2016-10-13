@@ -4,8 +4,10 @@ import Rx from 'rxjs'
 let _debug = false;
 let debug = (flag) => _debug = flag;
 
-let flow = new Rx.BehaviorSubject({});
-let stateFlow = flow.scan((currentState, update) => {
+let actionFlow = new Rx.Subject();
+let stateFlow = new Rx.BehaviorSubject({});
+
+actionFlow.scan((currentState, update) => {
     let change = update instanceof Function ? update(currentState) : update;
     let newState = Object.assign(currentState, change);
     if (_debug) {
@@ -13,7 +15,9 @@ let stateFlow = flow.scan((currentState, update) => {
         console.log(`newState: ${JSON.stringify(newState)}`);
     }
     return newState;
-});
+}, {})
+    .subscribe(state => stateFlow.next(state));
+
 
 let connect = (WrappedComponent) => {
     class Connect extends Component {
@@ -28,10 +32,7 @@ let connect = (WrappedComponent) => {
     return Connect;
 }
 
-let next = (state) => flow.next(state);
+let next = (state) => actionFlow.next(state);
 let initState = next;
 
 export {connect, next, initState, debug};
-
-
-
