@@ -7,6 +7,7 @@
   "main": "build/oneflow.js",
   "scripts": {
     "build": "babel src -d build",
+    "prepublish": "npm run build",
     "test": "mocha -r .jsdom.js -r babel-register src/oneflow.spec.js",
     "test:watch": "mocha -w -r .jsdom.js -r babel-register src/oneflow.spec.js"
   },
