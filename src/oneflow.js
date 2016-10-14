@@ -30,7 +30,7 @@ let connect = (WrappedComponent) => {
         }
 
         render() {
-            return createElement(WrappedComponent, {...this.state});
+            return createElement(WrappedComponent, Object.assign({}, this.state, this.props));
         }
     }
     return Connect;
