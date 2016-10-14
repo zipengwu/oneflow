@@ -2,11 +2,11 @@ import {Component, createElement} from 'react'
 import Rx from 'rxjs'
 
 let _debug = false;
-let debug = (flag) => _debug = flag;
+const debug = (flag) => _debug = flag;
 
-let actionFlow = new Rx.Subject();
-let changeFlow = new Rx.BehaviorSubject({});
-let stateFlow = new Rx.BehaviorSubject({});
+const actionFlow = new Rx.Subject();
+const changeFlow = new Rx.BehaviorSubject({});
+const stateFlow = new Rx.BehaviorSubject({});
 
 actionFlow.scan((currentState, update) => {
     let change = update instanceof Function ? update(currentState) : update;
@@ -21,7 +21,7 @@ actionFlow.scan((currentState, update) => {
     .subscribe(state => stateFlow.next(state));
 
 
-let connect = (WrappedComponent) => {
+const connect = (WrappedComponent) => {
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
@@ -39,7 +39,7 @@ let connect = (WrappedComponent) => {
     return Connect;
 }
 
-let next = (state) => actionFlow.next(state);
-let initState = next;
+const next = (state) => actionFlow.next(state);
+const initState = next;
 
 export {connect, next, initState, debug};
