@@ -65,4 +65,22 @@ describe('Connected component spec: ', () => {
         expect(div.prop('className')).to.equal("propname");
     });
 
+    it('partial state update works', () => {
+        flow.initState({name: CLASSNAME, value: VALUE});
+        const Connect = flow.connect(Wrap);
+        const target = mount(<Connect/>);
+        const div = target.find('div');
+        expect(div.text()).to.equal(VALUE);
+        expect(div.prop('className')).to.equal(CLASSNAME);
+        flow.next({name: "test2"});
+        expect(div.text()).to.equal(VALUE);
+        expect(div.prop('className')).to.equal("test2");
+        flow.next({value: "test3"});
+        expect(div.text()).to.equal("test3");
+        expect(div.prop('className')).to.equal("test2");
+        flow.next({name: "test4", value: "test4"});
+        expect(div.text()).to.equal("test4");
+        expect(div.prop('className')).to.equal("test4");
+    });
+
 });

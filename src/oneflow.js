@@ -22,7 +22,8 @@ actionFlow.scan((currentState, update) => {
 let connect = (WrappedComponent) => {
     class Connect extends Component {
         componentWillMount() {
-            this.subscription = stateFlow.subscribe(state => this.setState(state));
+            this.setState(stateFlow.getValue());
+            this.subscription = actionFlow.subscribe(state => this.setState(state));
         }
 
         componentWillUnmount() {
