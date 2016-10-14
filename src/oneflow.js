@@ -5,6 +5,7 @@ let _debug = false;
 let debug = (flag) => _debug = flag;
 
 let actionFlow = new Rx.Subject();
+let changeFlow = new Rx.BehaviorSubject({});
 let stateFlow = new Rx.BehaviorSubject({});
 
 actionFlow.scan((currentState, update) => {
@@ -14,6 +15,7 @@ actionFlow.scan((currentState, update) => {
         console.log(`change: ${JSON.stringify(change)}`);
         console.log(`newState: ${JSON.stringify(newState)}`);
     }
+    changeFlow.next(change);
     return newState;
 }, {})
     .subscribe(state => stateFlow.next(state));
@@ -23,7 +25,7 @@ let connect = (WrappedComponent) => {
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
-            this.subscription = actionFlow.subscribe(state => this.setState(state));
+            this.subscription = changeFlow.subscribe(state => this.setState(state));
         }
 
         componentWillUnmount() {

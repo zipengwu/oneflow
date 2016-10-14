@@ -3,9 +3,10 @@ import {mount} from 'enzyme';
 import {expect} from 'chai';
 import * as flow from './oneflow'
 
-const Wrap = ({name, value}) => <div className={name}>{value}</div>
 const CLASSNAME = "test class name";
 const VALUE = "test value";
+const Wrap = ({name, value}) => <div className={name}>{value}</div>
+const Num = ({i}) => <div>{i}</div>
 
 describe('Exported methods spec: ', () => {
 
@@ -38,16 +39,20 @@ describe('Exported methods spec: ', () => {
         expect(div.prop('className')).to.equal("name2");
     });
 
-    it('next() updates component state', () => {
-        flow.initState({name: CLASSNAME, value: VALUE});
-        const Connect = flow.connect(Wrap);
+    it('next() able to pass lambda with latest state', () => {
+        flow.initState({i: 1});
+        const Connect = flow.connect(Num);
         const target = mount(<Connect/>);
         const div = target.find('div');
-        expect(div.text()).to.equal(VALUE);
-        expect(div.prop('className')).to.equal(CLASSNAME);
-        flow.next({name: "name2", value: "value2"});
-        expect(div.text()).to.equal("value2");
-        expect(div.prop('className')).to.equal("name2");
+        expect(div.text()).to.equal('1');
+        flow.next(currentState => {
+            return {i: ++currentState.i};
+        });
+        expect(div.text()).to.equal('2');
+        flow.next(currentState => {
+            return {i: currentState.i + 10};
+        });
+        expect(div.text()).to.equal('12');
     });
 });
 
