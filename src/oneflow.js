@@ -11,10 +11,6 @@ const stateFlow = new Rx.BehaviorSubject({});
 actionFlow.scan((currentState, update) => {
     let change = update instanceof Function ? update(currentState) : update;
     let newState = Object.assign(currentState, change);
-    if (_debug) {
-        console.log(`change: ${JSON.stringify(change)}`);
-        console.log(`newState: ${JSON.stringify(newState)}`);
-    }
     changeFlow.next(change);
     return newState;
 }, {})
@@ -42,4 +38,14 @@ const connect = (WrappedComponent) => {
 const next = (state) => actionFlow.next(state);
 const initState = next;
 
-export {connect, next, initState, debug};
+let log = (info, state) => {
+    if (_debug){
+        console.log(`${info} : ${JSON.stringify(state)}`);
+    }
+}
+const setLogger = (logger) => log = logger;
+
+changeFlow.subscribe(state => log('change', state));
+stateFlow.subscribe(state => log('state', state));
+
+export {connect, next, initState, debug, setLogger};
