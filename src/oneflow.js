@@ -21,7 +21,19 @@ const connect = (WrappedComponent) => {
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
-            this.subscription = changeFlow.subscribe(state => this.setState(state));
+            let propTypes = WrappedComponent.propTypes;
+            if (propTypes instanceof Object && !!Object.keys(propTypes).length) {
+                let props = Object.keys(propTypes);
+                this.subscription = changeFlow
+                    .filter(state => {
+                        let stateKeys = Object.keys(state);
+                        return !!props.find(prop => stateKeys.includes(prop))
+                    })
+                    .subscribe(state => this.setState(state));
+            }
+            else {
+                this.subscription = changeFlow.subscribe(state => this.setState(state));
+            }
         }
 
         componentWillUnmount() {

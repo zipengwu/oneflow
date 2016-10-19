@@ -8,6 +8,11 @@ const CLASSNAME = "test class name";
 const VALUE = "test value";
 const Wrap = ({name, value}) => <div className={name}>{value}</div>
 const Num = ({i}) => <div>{i}</div>
+const PropTypes = ({a, b}) => <div>{a} - {b}</div>
+PropTypes.propTypes = {
+    a: React.PropTypes.string,
+    b: React.PropTypes.string
+}
 
 describe('Exported methods spec: ', () => {
 
@@ -100,6 +105,53 @@ describe('Connected component spec: ', () => {
         flow.next({name: "test4", value: "test4"});
         expect(div.text()).to.equal("test4");
         expect(div.prop('className')).to.equal("test4");
+    });
+
+    it('if propTypes undefined, render() call at very updates', () => {
+        const Connect = flow.connect(Wrap);
+        const target = mount(<Connect/>);
+        let render = spy(target.instance(), "render")
+        flow.next({name: "name"});
+        expect(render.calledOnce).to.be.true;
+        flow.next({a: "1", b: "2"});
+        expect(render.calledTwice).to.be.true;
+        flow.next({});
+        expect(render.calledThrice).to.be.true;
+    });
+});
+
+describe('Component with PropTypes spec: ', () => {
+    it('Connected component works as usual', () => {
+        const Connect = flow.connect(PropTypes);
+        const target = mount(<Connect/>);
+        let render = spy(target.instance(), "render");
+        const div = target.find('div');
+        flow.next({a: "1", b: "2"});
+        expect(div.text()).to.equal("1 - 2");
+        flow.next({name: "name"});
+        expect(div.text()).to.equal("1 - 2");
+        flow.next({b: "4"});
+        expect(div.text()).to.equal("1 - 4");
+        flow.next({});
+        expect(div.text()).to.equal("1 - 4");
+        flow.next({a: "7"});
+        expect(div.text()).to.equal("7 - 4");
+    });
+
+    it('render() called only at props updates', () => {
+        const Connect = flow.connect(PropTypes);
+        const target = mount(<Connect/>);
+        let render = spy(target.instance(), "render")
+        flow.next({a: "1", b: "2"});
+        expect(render.calledOnce).to.be.true;
+        flow.next({name: "name"});
+        expect(render.calledOnce).to.be.true;
+        flow.next({b: "4"});
+        expect(render.calledTwice).to.be.true;
+        flow.next({});
+        expect(render.calledTwice).to.be.true;
+        flow.next({a: "7"});
+        expect(render.calledThrice).to.be.true;
     });
 
 });
