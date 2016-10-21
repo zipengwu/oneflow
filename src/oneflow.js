@@ -5,16 +5,18 @@ let _debug = false;
 const debug = (flag) => _debug = flag;
 
 const actionFlow = new Rx.Subject();
-const changeFlow = new Rx.BehaviorSubject({});
+const changeFlow = new Rx.Subject();
 const stateFlow = new Rx.BehaviorSubject({});
 
 actionFlow.scan((currentState, update) => {
     let change = update instanceof Function ? update(currentState) : update;
     let newState = Object.assign(currentState, change);
+    stateFlow.next(newState);
     changeFlow.next(change);
     return newState;
 }, {})
-    .subscribe(state => stateFlow.next(state));
+    .publish()
+    .connect();
 
 
 const connect = (WrappedComponent) => {

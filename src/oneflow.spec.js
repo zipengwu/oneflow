@@ -70,8 +70,8 @@ describe('Exported methods spec: ', () => {
         let action = {action: 'action'};
         flow.next(action);
         expect(logger.calledTwice).to.be.true;
-        expect(logger.firstCall.calledWith('change', action)).to.be.true;
-        // can not test secondCall on state, because the accumulator on scan has previous test value
+        // can not test firstCall on state, because the accumulator on scan has previous test value
+        expect(logger.secondCall.calledWith('change', action)).to.be.true;
     });
 });
 
