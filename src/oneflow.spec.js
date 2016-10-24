@@ -8,11 +8,7 @@ const CLASSNAME = "test class name";
 const VALUE = "test value";
 const Wrap = ({name, value}) => <div className={name}>{value}</div>
 const Num = ({i}) => <div>{i}</div>
-const PropTypes = ({a, b}) => <div>{a} - {b}</div>
-PropTypes.propTypes = {
-    a: React.PropTypes.string,
-    b: React.PropTypes.string
-}
+const AB = ({a, b}) => <div>{a} - {b}</div>
 
 describe('Exported methods spec: ', () => {
 
@@ -69,7 +65,7 @@ describe('Exported methods spec: ', () => {
         flow.next({value: "value2"});
         expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2"});
         flow.next({init: 'init'});
-        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2", init:'init'});
+        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         flow.initState({init: 'init'});
         expect(flow.stateFlow.getValue()).to.deep.equal({init: 'init'});
     });
@@ -89,7 +85,6 @@ describe('Exported methods spec: ', () => {
 });
 
 describe('Connected component spec: ', () => {
-
     it('if props exist, take props instead of the one from flow', () => {
         flow.initState({name: CLASSNAME, value: VALUE});
         const Connect = flow.connect(Wrap);
@@ -119,23 +114,11 @@ describe('Connected component spec: ', () => {
         expect(div.text()).to.equal("test4");
         expect(div.prop('className')).to.equal("test4");
     });
-
-    it('if propTypes undefined, render() call at very updates', () => {
-        const Connect = flow.connect(Wrap);
-        const target = mount(<Connect/>);
-        let render = spy(target.instance(), "render")
-        flow.next({name: "name"});
-        expect(render.calledOnce).to.be.true;
-        flow.next({a: "1", b: "2"});
-        expect(render.calledTwice).to.be.true;
-        flow.next({});
-        expect(render.calledThrice).to.be.true;
-    });
 });
 
-describe('Component with PropTypes spec: ', () => {
-    it('Connected component works as usual', () => {
-        const Connect = flow.connect(PropTypes);
+describe('Component with state mapping spec: ', () => {
+    it('if stateInjector defined, Connected component works as usual', () => {
+        const Connect = flow.connect(AB, {a: true, b: true});
         const target = mount(<Connect/>);
         let render = spy(target.instance(), "render");
         const div = target.find('div');
@@ -151,8 +134,20 @@ describe('Component with PropTypes spec: ', () => {
         expect(div.text()).to.equal("7 - 4");
     });
 
-    it('render() called only at props updates', () => {
-        const Connect = flow.connect(PropTypes);
+    it('if stateInjector undefined, render() call at very updates', () => {
+        const Connect = flow.connect(AB);
+        const target = mount(<Connect/>);
+        let render = spy(target.instance(), "render")
+        flow.next({name: "name"});
+        expect(render.calledOnce).to.be.true;
+        flow.next({a: "1", b: "2"});
+        expect(render.calledTwice).to.be.true;
+        flow.next({});
+        expect(render.calledThrice).to.be.true;
+    });
+
+    it('if stateInjector defined, render() called only at props updates', () => {
+        const Connect = flow.connect(AB, {a: true, b: true});
         const target = mount(<Connect/>);
         let render = spy(target.instance(), "render")
         flow.next({a: "1", b: "2"});
@@ -167,4 +162,15 @@ describe('Component with PropTypes spec: ', () => {
         expect(render.calledThrice).to.be.true;
     });
 
+    it('if stateInjector set to false, no state subscription', () => {
+        const Connect = flow.connect(AB, false);
+        const target = mount(<Connect/>);
+        let render = spy(target.instance(), "render")
+        flow.next({a: "1", b: "2"});
+        expect(render.called).to.be.false;
+        flow.next({name: "name"});
+        expect(render.called).to.be.false;
+        flow.next({b: "4"});
+        expect(render.called).to.be.false;
+    });
 });

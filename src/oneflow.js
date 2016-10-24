@@ -19,27 +19,33 @@ actionFlow.scan((currentState, update) => {
     .connect();
 
 
-const connect = (WrappedComponent) => {
+const connect = (WrappedComponent, stateInjector = true) => {
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
-            let propTypes = WrappedComponent.propTypes;
-            if (propTypes instanceof Object && !!Object.keys(propTypes).length) {
-                let props = Object.keys(propTypes);
+            if (stateInjector instanceof Object && !!Object.keys(stateInjector).length) {
+                let nameMapping = [];
+                for (let key in stateInjector) {
+                    if (stateInjector[key] === true) {
+                        nameMapping.push(key)
+                    }
+                }
                 this.subscription = changeFlow
                     .filter(state => {
                         let stateKeys = Object.keys(state);
-                        return !!props.find(prop => stateKeys.includes(prop))
+                        return !!nameMapping.find(prop => stateKeys.includes(prop))
                     })
                     .subscribe(state => this.setState(state));
             }
-            else {
+            else if (stateInjector === true) {
                 this.subscription = changeFlow.subscribe(state => this.setState(state));
             }
         }
 
         componentWillUnmount() {
-            this.subscription.unsubscribe();
+            if (this.subscription) {
+                this.subscription.unsubscribe();
+            }
         }
 
         render() {
@@ -60,7 +66,7 @@ const initState = (state) => {
 };
 
 let log = (info, state) => {
-    if (_debug){
+    if (_debug) {
         console.log(`${info} : ${JSON.stringify(state)}`);
     }
 }
