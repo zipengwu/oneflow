@@ -61,6 +61,19 @@ describe('Exported methods spec: ', () => {
         expect(div.text()).to.equal('12');
     });
 
+    it('initState will reset scan accumulator', () => {
+        flow.initState({});
+        expect(flow.stateFlow.getValue()).to.deep.equal({});
+        flow.next({name: "hello"});
+        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello"});
+        flow.next({value: "value2"});
+        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2"});
+        flow.next({init: 'init'});
+        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2", init:'init'});
+        flow.initState({init: 'init'});
+        expect(flow.stateFlow.getValue()).to.deep.equal({init: 'init'});
+    });
+
     it('setLogger() will set a custom logger', () => {
         flow.initState({});
         const Connect = flow.connect(Num);
@@ -70,7 +83,7 @@ describe('Exported methods spec: ', () => {
         let action = {action: 'action'};
         flow.next(action);
         expect(logger.calledTwice).to.be.true;
-        // can not test firstCall on state, because the accumulator on scan has previous test value
+        expect(logger.firstCall.calledWith('state', action)).to.be.true;
         expect(logger.secondCall.calledWith('change', action)).to.be.true;
     });
 });

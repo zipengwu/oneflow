@@ -50,7 +50,14 @@ const connect = (WrappedComponent) => {
 }
 
 const next = (state) => actionFlow.next(state);
-const initState = next;
+const initState = (state) => {
+    next(currentState => {
+        Object.keys(currentState).forEach(key => {
+            delete currentState[key]
+        });
+        return state;
+    });
+};
 
 let log = (info, state) => {
     if (_debug){
@@ -62,4 +69,4 @@ const setLogger = (logger) => log = logger;
 changeFlow.subscribe(state => log('change', state));
 stateFlow.subscribe(state => log('state', state));
 
-export {connect, next, initState, debug, setLogger};
+export {connect, next, initState, debug, setLogger, stateFlow};
