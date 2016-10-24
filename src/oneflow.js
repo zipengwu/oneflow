@@ -25,17 +25,33 @@ const connect = (WrappedComponent, stateInjector = true) => {
             this.setState(stateFlow.getValue());
             if (stateInjector instanceof Object && !!Object.keys(stateInjector).length) {
                 let nameMapping = [];
+                let funcMapping = [];
                 for (let key in stateInjector) {
                     if (stateInjector[key] === true) {
                         nameMapping.push(key)
                     }
+                    else if (stateInjector[key] instanceof Function) {
+                        funcMapping.push(key)
+                    }
                 }
-                this.subscription = changeFlow
-                    .filter(state => {
-                        let stateKeys = Object.keys(state);
-                        return !!nameMapping.find(prop => stateKeys.includes(prop))
-                    })
-                    .subscribe(state => this.setState(state));
+                if (funcMapping.length > 0) {
+                    this.subscription = stateFlow
+                        .map(state => {
+                            let extract = {};
+                            funcMapping.forEach(key => extract[key] = stateInjector[key](state));
+                            nameMapping.forEach(key => extract[key] = state[key]);
+                            return extract;
+                        })
+                        .subscribe(state => this.setState(state));
+                }
+                else {
+                    this.subscription = changeFlow
+                        .filter(state => {
+                            let stateKeys = Object.keys(state);
+                            return !!nameMapping.find(prop => stateKeys.includes(prop))
+                        })
+                        .subscribe(state => this.setState(state));
+                }
             }
             else if (stateInjector === true) {
                 this.subscription = changeFlow.subscribe(state => this.setState(state));

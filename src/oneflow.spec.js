@@ -117,6 +117,10 @@ describe('Connected component spec: ', () => {
 });
 
 describe('Component with state mapping spec: ', () => {
+    beforeEach(() => {
+        flow.initState({});
+    });
+
     it('if stateInjector defined, Connected component works as usual', () => {
         const Connect = flow.connect(AB, {a: true, b: true});
         const target = mount(<Connect/>);
@@ -172,5 +176,23 @@ describe('Component with state mapping spec: ', () => {
         expect(render.called).to.be.false;
         flow.next({b: "4"});
         expect(render.called).to.be.false;
+    });
+
+    it('stateInjector can pass functions to compute props with latest state', () => {
+        flow.next({a: 1, c: 2});
+        const Connect = flow.connect(AB, {a:true, b: state => state.a + state.c});
+        const target = mount(<Connect/>);
+        const div = target.find('div');
+        expect(div.text()).to.equal("1 - 3");
+        flow.next({name: "name"});
+        expect(div.text()).to.equal("1 - 3");
+        flow.next({b: 4});
+        expect(div.text()).to.equal("1 - 3");
+        flow.next({});
+        expect(div.text()).to.equal("1 - 3");
+        flow.next({a: 7});
+        expect(div.text()).to.equal("7 - 9");
+        flow.next({c: 17});
+        expect(div.text()).to.equal("7 - 24");
     });
 });
