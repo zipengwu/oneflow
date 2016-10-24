@@ -19,7 +19,7 @@ actionFlow.scan((currentState, update) => {
     .connect();
 
 
-const connect = (WrappedComponent, stateInjector = true) => {
+const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
@@ -65,7 +65,7 @@ const connect = (WrappedComponent, stateInjector = true) => {
         }
 
         render() {
-            return createElement(WrappedComponent, Object.assign({}, this.state, this.props));
+            return createElement(WrappedComponent, Object.assign({}, this.state, actionInjector, this.props));
         }
     }
     return Connect;
