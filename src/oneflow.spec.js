@@ -8,7 +8,7 @@ const CLASSNAME = "test class name";
 const VALUE = "test value";
 const Wrap = ({name, value}) => <div className={name}>{value}</div>
 const Num = ({i}) => <div>{i}</div>
-const AB = ({a, b}) => <div>{a} - {b}</div>
+const AB = ({a, b}) => <div>{`${a} - ${b}`}</div>
 const Button = ({text, clickHandler, counter}) => <div>
     <button onClick={() => clickHandler(0, counter)}>{text}</button>
     <p>{counter}</p>
