@@ -20,6 +20,10 @@ actionFlow.scan((currentState, update) => {
 
 
 const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
+    let actionHandlers = {};
+    for (let key in actionInjector) {
+        actionHandlers[key] = (...params) => actionFlow.next(actionInjector[key](...params));
+    }
     class Connect extends Component {
         componentWillMount() {
             this.setState(stateFlow.getValue());
@@ -65,7 +69,7 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
         }
 
         render() {
-            return createElement(WrappedComponent, Object.assign({}, this.state, actionInjector, this.props));
+            return createElement(WrappedComponent, Object.assign({}, this.state, actionHandlers, this.props));
         }
     }
     return Connect;

@@ -9,9 +9,9 @@ const VALUE = "test value";
 const Wrap = ({name, value}) => <div className={name}>{value}</div>
 const Num = ({i}) => <div>{i}</div>
 const AB = ({a, b}) => <div>{a} - {b}</div>
-const Button = ({text, clickHandler}) => <div>
-    <button onClick={() => clickHandler()}>click</button>
-    <p>{text}</p>
+const Button = ({text, clickHandler, counter}) => <div>
+    <button onClick={() => clickHandler(0, counter)}>{text}</button>
+    <p>{counter}</p>
 </div>
 
 describe('Exported methods spec: ', () => {
@@ -201,22 +201,25 @@ describe('Component with state mapping spec: ', () => {
     });
 
     it('actionInjector can inject action functions to component props', () => {
-        flow.initState({text: "text"});
-        let i = 1;
-        let action = () => {
-            return {text: `click ${i++}`}
+        flow.initState({text: "click", counter: 0});
+        let action = (unuse, counter, unuse2) => {
+            let num = ++counter;
+            return {text: `click ${num}`, counter: num};
         };
-        let spyHandler = spy(() => flow.next(action()));
+        let spyHandler = spy(action);
         const Connect = flow.connect(Button, true, {clickHandler: spyHandler});
         const target = mount(<Connect/>);
         const button = target.find('button');
         const p = target.find('p');
-        expect(p.text()).to.equal("text");
+        expect(p.text()).to.equal("0");
+        expect(button.text()).to.equal("click");
         button.simulate('click');
         expect(spyHandler.calledOnce).to.be.true;
-        expect(p.text()).to.equal("click 1");
+        expect(p.text()).to.equal("1");
+        expect(button.text()).to.equal("click 1");
         button.simulate('click');
         expect(spyHandler.calledTwice).to.be.true;
-        expect(p.text()).to.equal("click 2");
+        expect(p.text()).to.equal("2");
+        expect(button.text()).to.equal("click 2");
     });
 });
