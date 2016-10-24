@@ -1,5 +1,6 @@
 .idea/
 src/
+examples/
 node_modules
 coverage
 npm-debug.log
