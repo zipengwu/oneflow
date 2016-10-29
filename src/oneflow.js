@@ -84,6 +84,7 @@ const initState = (state) => {
         return state;
     });
 };
+const subscribe = (observer) => changeFlow.subscribe(change => observer(change, stateFlow.value));
 
 let log = (info, state) => {
     if (_debug) {
@@ -95,4 +96,4 @@ const setLogger = (logger) => log = logger;
 changeFlow.subscribe(state => log('change', state));
 stateFlow.subscribe(state => log('state', state));
 
-export {connect, next, initState, debug, setLogger, stateFlow};
+export {connect, next, subscribe, initState, debug, setLogger};

@@ -62,16 +62,19 @@ describe('Exported methods spec: ', () => {
     });
 
     it('initState will reset scan accumulator', () => {
+        let currentState = {};
+        let subscription = flow.subscribe((change, state) => currentState = state);
         flow.initState({});
-        expect(flow.stateFlow.getValue()).to.deep.equal({});
+        expect(currentState).to.deep.equal({});
         flow.next({name: "hello"});
-        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello"});
+        expect(currentState).to.deep.equal({name: "hello"});
         flow.next({value: "value2"});
-        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2"});
+        expect(currentState).to.deep.equal({name: "hello", value: "value2"});
         flow.next({init: 'init'});
-        expect(flow.stateFlow.getValue()).to.deep.equal({name: "hello", value: "value2", init: 'init'});
+        expect(currentState).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         flow.initState({init: 'init'});
-        expect(flow.stateFlow.getValue()).to.deep.equal({init: 'init'});
+        expect(currentState).to.deep.equal({init: 'init'});
+        subscription.unsubscribe();
     });
 
     it('setLogger() will set a custom logger', () => {
