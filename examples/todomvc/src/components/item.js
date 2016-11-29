@@ -62,12 +62,12 @@ class ItemView extends React.Component {
 	}
 }
 
-const propsInjector = {
+const stateInjector = {
 	todo: false,
 	editing: true
 }
 
-const actionsInjector = {
+const actionInjector = {
 	onToggle: toggleTodo,
 	onEdit: id => ({editing: id}),
 	onCancel: () => ({editing: null}),
@@ -75,4 +75,4 @@ const actionsInjector = {
 	onDelete: deleteTodo
 }
 
-export default flow.connect(ItemView, propsInjector, actionsInjector)
+export default flow.connect(ItemView, stateInjector, actionInjector)

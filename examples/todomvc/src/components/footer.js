@@ -34,11 +34,11 @@ const FooterView = ({count, completedCount, onClearCompleted}) => {
 		: null;
 }
 
-const propsInjector = {
+const stateInjector = {
 	count: state => state.todos.length,
 	completedCount: state => state.todos.filter(todo => todo.completed).length
 }
 
-const actionsInjector = {onClearCompleted: clearCompleted}
+const actionInjector = {onClearCompleted: clearCompleted}
 
-export default flow.connect(FooterView, propsInjector, actionsInjector)
+export default flow.connect(FooterView, stateInjector, actionInjector)

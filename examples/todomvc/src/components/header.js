@@ -29,8 +29,8 @@ class HeaderView extends React.Component {
 	}
 }
 
-const actionsInjector = {
+const actionInjector = {
 	onSubmit: addTodo
 }
 
-export default flow.connect(HeaderView, false, actionsInjector)
+export default flow.connect(HeaderView, false, actionInjector)

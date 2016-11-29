@@ -33,13 +33,13 @@ const MainView = ({todos, showing, onToggleAll}) => {
 	)
 }
 
-const propsInjector = {
+const stateInjector = {
 	todos: true,
 	showing: false
 }
 
-const actionsInjector = {
+const actionInjector = {
 	onToggleAll: toggleAll
 }
 
-export default flow.connect(MainView, propsInjector, actionsInjector)
+export default flow.connect(MainView, stateInjector, actionInjector)
