@@ -4,7 +4,7 @@ import {toggleAll} from "../actions/index";
 import {ACTIVE_TODOS, COMPLETED_TODOS} from "../constants";
 import * as flow from "oneflow";
 
-const MainView = ({todos, showing, onToggleAll}) => {
+export const Main = ({todos, showing, onToggleAll}) => {
 	return todos.length === 0 ? null : (
 		<section className='main'>
 			<input
@@ -42,4 +42,4 @@ const actionInjector = {
 	onToggleAll: toggleAll
 }
 
-export default flow.connect(MainView, stateInjector, actionInjector)
+export default flow.connect(Main, stateInjector, actionInjector)

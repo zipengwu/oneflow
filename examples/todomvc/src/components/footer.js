@@ -5,7 +5,7 @@ import {IndexLink} from "react-router";
 import {clearCompleted} from "../actions/index";
 import * as flow from "oneflow";
 
-const FooterView = ({count, completedCount, onClearCompleted}) => {
+export const Footer = ({count, completedCount, onClearCompleted}) => {
 	let activeCount = count - completedCount;
 	const clearButton = completedCount > 0 ?
 		<button
@@ -15,7 +15,7 @@ const FooterView = ({count, completedCount, onClearCompleted}) => {
 		</button>
 		: null;
 
-	return activeCount || completedCount ? (
+	return count ? (
 		<footer className='footer'>
 					<span className='todo-count'>
 						<strong>{activeCount}</strong> {pluralize(activeCount, 'item')} left
@@ -41,4 +41,4 @@ const stateInjector = {
 
 const actionInjector = {onClearCompleted: clearCompleted}
 
-export default flow.connect(FooterView, stateInjector, actionInjector)
+export default flow.connect(Footer, stateInjector, actionInjector)

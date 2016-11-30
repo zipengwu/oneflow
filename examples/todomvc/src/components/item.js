@@ -4,7 +4,7 @@ import {ESCAPE_KEY, ENTER_KEY} from "../constants";
 import {toggleTodo, editTodo, deleteTodo} from "../actions/index";
 import * as flow from "oneflow";
 
-class ItemView extends React.Component {
+export class Item extends React.Component {
 	state = {text: this.props.todo.title}
 
 	componentDidUpdate(prevProps) {
@@ -75,4 +75,4 @@ const actionInjector = {
 	onDelete: deleteTodo
 }
 
-export default flow.connect(ItemView, stateInjector, actionInjector)
+export default flow.connect(Item, stateInjector, actionInjector)
