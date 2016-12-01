@@ -1,9 +1,6 @@
 import {Component, createElement} from 'react'
 import Rx from 'rxjs'
 
-let _debug = false;
-const debug = (flag) => _debug = flag;
-
 const actionFlow = new Rx.Subject();
 const changeFlow = new Rx.Subject();
 const stateFlow = new Rx.BehaviorSubject({});
@@ -86,14 +83,4 @@ const initState = (state) => {
 };
 const subscribe = (observer) => changeFlow.subscribe(change => observer(change, stateFlow.value));
 
-let log = (info, state) => {
-    if (_debug) {
-        console.log(`${info} : ${JSON.stringify(state)}`);
-    }
-}
-const setLogger = (logger) => log = logger;
-
-changeFlow.subscribe(state => log('change', state));
-stateFlow.subscribe(state => log('state', state));
-
-export {connect, next, subscribe, initState, debug, setLogger};
+export {connect, next, subscribe, initState};

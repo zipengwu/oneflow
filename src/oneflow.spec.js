@@ -76,19 +76,6 @@ describe('Exported methods spec: ', () => {
         expect(currentState).to.deep.equal({init: 'init'});
         subscription.unsubscribe();
     });
-
-    it('setLogger() will set a custom logger', () => {
-        flow.initState({});
-        const Connect = flow.connect(Num);
-        const target = mount(<Connect/>);
-        const logger = spy();
-        flow.setLogger(logger);
-        let action = {action: 'action'};
-        flow.next(action);
-        expect(logger.calledTwice).to.be.true;
-        expect(logger.firstCall.calledWith('state', action)).to.be.true;
-        expect(logger.secondCall.calledWith('change', action)).to.be.true;
-    });
 });
 
 describe('Connected component spec: ', () => {
