@@ -1,20 +1,15 @@
-import {Component, createElement} from 'react'
-import Rx from 'rxjs'
+import {Component, createElement} from 'react';
+import Rx from 'rxjs';
 
 const actionFlow = new Rx.Subject();
-const changeFlow = new Rx.Subject();
-const stateFlow = new Rx.BehaviorSubject({});
+const flow = actionFlow.scan(({state}, update) => {
+        let change = update instanceof Function ? update(state) : update;
+        return {update: change, state: Object.assign(state, change)};
+    }
+    , {state: {}})
+    .publishBehavior({update: {}, state: {}});
 
-actionFlow.scan((currentState, update) => {
-    let change = update instanceof Function ? update(currentState) : update;
-    let newState = Object.assign(currentState, change);
-    stateFlow.next(newState);
-    changeFlow.next(change);
-    return newState;
-}, {})
-    .publish()
-    .connect();
-
+flow.connect();
 
 const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
     let actionHandlers = {};
@@ -23,7 +18,6 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
     }
     class Connect extends Component {
         componentWillMount() {
-            this.setState(stateFlow.getValue());
             if (stateInjector instanceof Object && !!Object.keys(stateInjector).length) {
                 let nameMapping = [];
                 let funcMapping = [];
@@ -36,26 +30,26 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
                     }
                 }
                 if (funcMapping.length > 0) {
-                    this.subscription = stateFlow
-                        .map(state => {
-                            let extract = {};
-                            funcMapping.forEach(key => extract[key] = stateInjector[key](state));
-                            nameMapping.forEach(key => extract[key] = state[key]);
-                            return extract;
+                    this.subscription = flow
+                        .map(({state}) => {
+                            let impact = {};
+                            funcMapping.forEach(key => impact[key] = stateInjector[key](state));
+                            nameMapping.forEach(key => impact[key] = state[key]);
+                            return impact;
                         })
-                        .subscribe(state => this.setState(state));
+                        .subscribe(impact => this.setState(impact));
                 }
                 else {
-                    this.subscription = changeFlow
-                        .filter(state => {
-                            let stateKeys = Object.keys(state);
-                            return !!nameMapping.find(prop => stateKeys.includes(prop))
+                    this.subscription = flow
+                        .filter(({update}) => {
+                            let updateKeys = Object.keys(update);
+                            return !!nameMapping.find(prop => updateKeys.includes(prop))
                         })
-                        .subscribe(state => this.setState(state));
+                        .subscribe(({update}) => this.setState(update));
                 }
             }
             else if (stateInjector === true) {
-                this.subscription = changeFlow.subscribe(state => this.setState(state));
+                this.subscription = flow.subscribe(({update}) => this.setState(update));
             }
         }
 
@@ -73,14 +67,18 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
 }
 
 const next = (state) => actionFlow.next(state);
+
 const initState = (state) => {
     next(currentState => {
-        Object.keys(currentState).forEach(key => {
-            delete currentState[key]
-        });
+        if (currentState) {
+            Object.keys(currentState).forEach(key => {
+                delete currentState[key]
+            });
+        }
         return state;
     });
 };
-const subscribe = (observer) => changeFlow.subscribe(change => observer(change, stateFlow.value));
+
+const subscribe = (observer) => flow.subscribe(({update, state}) => observer(update, state));
 
 export {connect, next, subscribe, initState};

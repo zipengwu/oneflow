@@ -76,6 +76,22 @@ describe('Exported methods spec: ', () => {
         expect(currentState).to.deep.equal({init: 'init'});
         subscription.unsubscribe();
     });
+
+	it('when subscribe, will get the last latest state', () => {
+		let state1 = {};
+		flow.initState({});
+		let subscription = flow.subscribe((change, state) => state1 = state);
+		expect(state1).to.deep.equal({});
+		flow.next({name: "hello"});
+		expect(state1).to.deep.equal({name: "hello"});
+		subscription.unsubscribe();
+		flow.next({value: "value2"});
+		flow.next({init: 'init'});
+		let state2 = {};
+		subscription = flow.subscribe((change, state) => state2 = state);
+		expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
+		subscription.unsubscribe();
+	});
 });
 
 describe('Connected component spec: ', () => {
