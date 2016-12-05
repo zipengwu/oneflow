@@ -16,37 +16,37 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
     for (let key in actionInjector) {
         actionHandlers[key] = (...params) => actionFlow.next(actionInjector[key](...params));
     }
+    let nameMapping = [];
+    let funcMapping = [];
+    if (stateInjector instanceof Object && Object.keys(stateInjector).length) {
+        for (let key in stateInjector) {
+            if (stateInjector[key] === true) {
+                nameMapping.push(key)
+            }
+            else if (stateInjector[key] instanceof Function) {
+                funcMapping.push(key)
+            }
+        }
+    }
     class Connect extends Component {
         componentWillMount() {
-            if (stateInjector instanceof Object && !!Object.keys(stateInjector).length) {
-                let nameMapping = [];
-                let funcMapping = [];
-                for (let key in stateInjector) {
-                    if (stateInjector[key] === true) {
-                        nameMapping.push(key)
-                    }
-                    else if (stateInjector[key] instanceof Function) {
-                        funcMapping.push(key)
-                    }
-                }
-                if (funcMapping.length > 0) {
-                    this.subscription = flow
-                        .map(({state}) => {
-                            let impact = {};
-                            funcMapping.forEach(key => impact[key] = stateInjector[key](state));
-                            nameMapping.forEach(key => impact[key] = state[key]);
-                            return impact;
-                        })
-                        .subscribe(impact => this.setState(impact));
-                }
-                else {
-                    this.subscription = flow
-                        .filter(({update}) => {
-                            let updateKeys = Object.keys(update);
-                            return !!nameMapping.find(prop => updateKeys.includes(prop))
-                        })
-                        .subscribe(({update}) => this.setState(update));
-                }
+            if (funcMapping.length) {
+                this.subscription = flow
+                    .map(({state}) => {
+                        let impact = {};
+                        funcMapping.forEach(key => impact[key] = stateInjector[key](state));
+                        nameMapping.forEach(key => impact[key] = state[key]);
+                        return impact;
+                    })
+                    .subscribe(impact => this.setState(impact));
+            }
+            else if (nameMapping.length) {
+                this.subscription = flow
+                    .filter(({update}) => {
+                        let updateKeys = Object.keys(update);
+                        return !!nameMapping.find(prop => updateKeys.includes(prop))
+                    })
+                    .subscribe(({update}) => this.setState(update));
             }
             else if (stateInjector === true) {
                 this.subscription = flow.subscribe(({update}) => this.setState(update));
