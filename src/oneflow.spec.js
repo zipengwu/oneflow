@@ -124,6 +124,20 @@ describe('Connected component spec: ', () => {
         expect(div.text()).to.equal("test4");
         expect(div.prop('className')).to.equal("test4");
     });
+
+    it('if update is undefined or empty, setState() will not be called', () => {
+        const Connect = flow.connect(AB);
+        const target = mount(<Connect/>);
+        let setState = spy(target.instance(), "setState")
+        flow.next({name: "name"});
+        expect(setState.calledOnce).to.be.true;
+        flow.next({a: "1", b: "2"});
+        expect(setState.calledTwice).to.be.true;
+        flow.next({});
+        expect(setState.calledThrice).to.be.false;
+        flow.next(null);
+        expect(setState.calledThrice).to.be.false;
+    });
 });
 
 describe('Component with state mapping spec: ', () => {
@@ -156,8 +170,6 @@ describe('Component with state mapping spec: ', () => {
         expect(render.calledOnce).to.be.true;
         flow.next({a: "1", b: "2"});
         expect(render.calledTwice).to.be.true;
-        flow.next({});
-        expect(render.calledThrice).to.be.true;
     });
 
     it('if stateInjector defined, render() called only at props updates', () => {

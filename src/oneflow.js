@@ -7,6 +7,7 @@ const flow = actionFlow.scan(({state}, update) => {
         return {update: change, state: Object.assign(state, change)};
     }
     , {state: {}})
+    .filter(({update}) => update instanceof Object && Object.keys(update).length)
     .publishBehavior({update: {}, state: {}});
 
 flow.connect();
