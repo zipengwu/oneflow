@@ -63,6 +63,10 @@ const connect = (WrappedComponent, stateInjector = true, actionInjector) => {
         render() {
             return createElement(WrappedComponent, Object.assign({}, this.state, actionHandlers, this.props));
         }
+
+        static getWrappedComponent() {
+            return WrappedComponent;
+        }
     }
     return Connect;
 }
