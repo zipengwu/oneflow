@@ -1,14 +1,17 @@
 import {oneflow} from './oneflow';
 import {expect} from 'chai';
 
-const dummyAction = (params) => (state) => params
-const next = oneflow.from(dummyAction)
+const dummyStateAction = (params) => (state) => params
+const next = oneflow.from(dummyStateAction)
+
+const calculateAction = (a, b) => ({result}) => ({result: (result | 0 + a) * b})
+const calculate = oneflow.from(calculateAction)
 
 describe('oneflow instance spec: ', () => {
     it('initState will reset scan accumulator', () => {
-        let currentState = {};
-        let subscription = oneflow.subscribe((change, state) => currentState = state);
         oneflow.initState({});
+        let currentState = {};
+        let subscription = oneflow.subscribe((update, state) => currentState = state);
         expect(currentState).to.deep.equal({});
         next({name: "hello"});
         expect(currentState).to.deep.equal({name: "hello"});
@@ -24,7 +27,7 @@ describe('oneflow instance spec: ', () => {
     it('when subscribe, will get the last latest state', () => {
         let state1 = {};
         oneflow.initState({});
-        let subscription = oneflow.subscribe((change, state) => state1 = state);
+        let subscription = oneflow.subscribe((update, state) => state1 = state);
         expect(state1).to.deep.equal({});
         next({name: "hello"});
         expect(state1).to.deep.equal({name: "hello"});
@@ -32,7 +35,7 @@ describe('oneflow instance spec: ', () => {
         next({value: "value2"});
         next({init: 'init'});
         let state2 = {};
-        subscription = oneflow.subscribe((change, state) => state2 = state);
+        subscription = oneflow.subscribe((update, state) => state2 = state);
         expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         subscription.unsubscribe();
     });
@@ -40,7 +43,7 @@ describe('oneflow instance spec: ', () => {
     it('when subscribe, will get the last latest state', () => {
         let state1 = {};
         oneflow.initState({});
-        let subscription = oneflow.subscribe((change, state) => state1 = state);
+        let subscription = oneflow.subscribe((update, state) => state1 = state);
         expect(state1).to.deep.equal({});
         next({name: "hello"});
         expect(state1).to.deep.equal({name: "hello"});
@@ -48,8 +51,53 @@ describe('oneflow instance spec: ', () => {
         next({value: "value2"});
         next({init: 'init'});
         let state2 = {};
-        subscription = oneflow.subscribe((change, state) => state2 = state);
+        subscription = oneflow.subscribe((update, state) => state2 = state);
         expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         subscription.unsubscribe();
     });
 });
+
+describe('Middlewares spec: ', () => {
+    const middleware = (action, meta) => (state) => {
+        let update = action(state);
+        update.actionName = meta['@@ACTION'];
+        return update;
+    }
+
+    const middleware2 = (action, meta) => (state) => {
+        let update = action(state);
+        update.actionName = meta['@@ACTION'].replace('Action', 'Func');
+        return update;
+    }
+
+    beforeEach(() => {
+        oneflow.initState({});
+    });
+
+    afterEach(() => {
+        oneflow.applyMiddlewares();
+    });
+
+    it('middleware can read action meta info', () => {
+        let currentState;
+        oneflow.applyMiddlewares(middleware)
+        oneflow.subscribe((update, state) => currentState = state);
+        expect(currentState).to.deep.equal({});
+        next({a: 1, b: 2});
+        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateAction'});
+        calculate(1, 2);
+        expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, actionName: 'calculateAction'});
+    });
+
+    it('Apply middlewares in right order', () => {
+        let currentState;
+        oneflow.applyMiddlewares(middleware2, middleware)
+        oneflow.subscribe((update, state) => currentState = state);
+        expect(currentState).to.deep.equal({});
+        next({a: 1, b: 2});
+        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateFunc'});
+        calculate(1, 2);
+        expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, actionName: 'calculateFunc'});
+    });
+});
+

@@ -1,5 +1,18 @@
 import Rx from 'rxjs';
-import compose from './compose';
+
+const compose = (...funcs) => {
+    funcs = funcs.filter(func => typeof func === 'function')
+
+    if (funcs.length === 0) {
+        return arg => arg
+    }
+
+    if (funcs.length === 1) {
+        return funcs[0]
+    }
+
+    return funcs.reduce((a, b) => (first, ...rest) => a(b(first, ...rest), ...rest))
+}
 
 class Oneflow {
     static instances = {};
@@ -19,8 +32,13 @@ class Oneflow {
     }
 
     applyMiddlewares(...middlewares) {
-        let combine = compose(...middlewares);
-        this.next = (action) => this.action$.next(combine(action));
+        if (middlewares.length) {
+            let combine = compose(...middlewares);
+            this.next = (action, meta) => this.action$.next(combine(action, meta));
+        }
+        else {
+            this.next = (action) => this.action$.next(action);
+        }
     }
 
     subscribe(observer) {
@@ -29,13 +47,11 @@ class Oneflow {
 
     from(action, name) {
         return (...args) => {
-            let mutation = action(...args);
-            //TODO: detect if mutation is a function
-            Object.defineProperty(mutation, 'meta', {
+            let meta = {
                 '@@ACTION': name ? name : action.name,
                 '@@ACTION_PARAMS': args
-            });
-            this.next(mutation);
+            }
+            this.next(action(...args), meta);
         }
     }
 
