@@ -4,12 +4,12 @@
   "description": "oneflow desciption",
   "author": "Zipeng WU",
   "license": "MIT",
-  "main": "build/oneflow.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "babel src -d build",
     "prepublish": "npm run build",
-    "test": "mocha -r .jsdom.js -r babel-register src/oneflow.spec.js",
-    "test:watch": "mocha -w -r .jsdom.js -r babel-register src/oneflow.spec.js"
+    "test": "mocha -r .jsdom.js -r babel-register src/*.spec.js",
+    "test:watch": "mocha -w -r .jsdom.js -r babel-register src/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "react": "^15.4.1",
-    "rxjs": "^5.0.0-rc.4"
+    "rxjs": "^5.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
