@@ -2,10 +2,10 @@ import {oneflow} from './oneflow';
 import {expect} from 'chai';
 
 const dummyStateAction = (params) => (state) => params
-const next = oneflow.from(dummyStateAction)
+const next = oneflow.action(dummyStateAction)
 
 const calculateAction = (a, b) => ({result}) => ({result: (result | 0 + a) * b})
-const calculate = oneflow.from(calculateAction)
+const calculate = oneflow.action(calculateAction)
 
 describe('oneflow instance spec: ', () => {
     it('initState will reset scan accumulator', () => {

@@ -2,15 +2,12 @@ import Rx from 'rxjs';
 
 const compose = (...funcs) => {
     funcs = funcs.filter(func => typeof func === 'function')
-
     if (funcs.length === 0) {
         return arg => arg
     }
-
     if (funcs.length === 1) {
         return funcs[0]
     }
-
     return funcs.reduce((a, b) => (first, ...rest) => a(b(first, ...rest), ...rest))
 }
 
@@ -45,7 +42,7 @@ class Oneflow {
         return this.state$.subscribe(({update, state}) => observer(update, state));
     }
 
-    from(action, name) {
+    action(action, name) {
         return (...args) => {
             let meta = {
                 '@@ACTION': name ? name : action.name,

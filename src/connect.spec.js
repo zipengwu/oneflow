@@ -14,7 +14,7 @@ const Button = ({text, clickHandler, counter}) => <div>
     <p>{counter}</p>
 </div>
 const dummyAction = (params) => (state) => params
-const next = oneflow.from(dummyAction)
+const next = oneflow.action(dummyAction)
 
 describe('connect spec: ', () => {
 
@@ -182,7 +182,7 @@ describe('Component with state mapping spec: ', () => {
             return {text: `click ${num}`, counter: num};
         };
         let spyHandler = spy(action);
-        const Connect = connect(Button, true, {clickHandler: oneflow.from(spyHandler)});
+        const Connect = connect(Button, true, {clickHandler: oneflow.action(spyHandler)});
         const target = mount(<Connect/>);
         const button = target.find('button');
         const p = target.find('p');
