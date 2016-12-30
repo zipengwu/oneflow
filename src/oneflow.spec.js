@@ -67,6 +67,7 @@ describe('Middlewares spec: ', () => {
     const middleware2 = (action, meta) => (state) => {
         let update = action(state);
         update.actionName = meta['@@ACTION'].replace('Action', 'Func');
+        update.tag = 'middleware2'
         return update;
     }
 
@@ -89,15 +90,21 @@ describe('Middlewares spec: ', () => {
         expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, actionName: 'calculateAction'});
     });
 
-    it('Apply middlewares in right order', () => {
+    it('Apply middlewares cumulative and in right order', () => {
         let currentState;
         oneflow.applyMiddlewares(middleware2, middleware)
         oneflow.subscribe((update, state) => currentState = state);
         expect(currentState).to.deep.equal({});
         next({a: 1, b: 2});
-        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateFunc'});
+        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateFunc', tag: 'middleware2'});
         calculate(1, 2);
-        expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, actionName: 'calculateFunc'});
+        expect(currentState).to.deep.equal({
+            a: 1,
+            b: 2,
+            result: 2,
+            actionName: 'calculateFunc',
+            tag: 'middleware2'
+        });
     });
 });
 
