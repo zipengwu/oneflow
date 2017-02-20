@@ -18,7 +18,7 @@ const connectAvance = (flowInstance) => (wrapped, stateInjector = true, actionIn
 
     let actionHandlers = {};
     for ( const key in actionInjector ) {
-        actionHandlers[key] = flowInstance.action(actionInjector[key])
+        actionHandlers[key] = flowInstance.action(actionInjector[key], `${actionInjector[key].name}[${flowInstance.name}:${key}]`)
     }
 
     class Connect extends Component {
