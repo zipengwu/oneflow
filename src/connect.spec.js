@@ -182,7 +182,7 @@ describe('Component with state mapping spec: ', () => {
             return {text: `click ${num}`, counter: num};
         };
         let spyHandler = spy(action);
-        const Connect = connect(Button, true, {clickHandler: oneflow.action(spyHandler)});
+        const Connect = connect(Button, true, {clickHandler: spyHandler});
         const target = mount(<Connect/>);
         const button = target.find('button');
         const p = target.find('p');

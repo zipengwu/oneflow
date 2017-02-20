@@ -39,22 +39,6 @@ describe('oneflow instance spec: ', () => {
         expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         subscription.unsubscribe();
     });
-
-    it('when subscribe, will get the last latest state', () => {
-        let state1 = {};
-        oneflow.initState({});
-        let subscription = oneflow.subscribe((update, state) => state1 = state);
-        expect(state1).to.deep.equal({});
-        next({name: "hello"});
-        expect(state1).to.deep.equal({name: "hello"});
-        subscription.unsubscribe();
-        next({value: "value2"});
-        next({init: 'init'});
-        let state2 = {};
-        subscription = oneflow.subscribe((update, state) => state2 = state);
-        expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
-        subscription.unsubscribe();
-    });
 });
 
 describe('Middlewares spec: ', () => {

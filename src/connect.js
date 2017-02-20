@@ -16,6 +16,11 @@ const connectAvance = (flowInstance) => (wrapped, stateInjector = true, actionIn
         }
     }
 
+    let actionHandlers = {};
+    for ( const key in actionInjector ) {
+        actionHandlers[key] = flowInstance.action(actionInjector[key])
+    }
+
     class Connect extends Component {
         componentWillMount() {
             if (stateflow) {
@@ -30,7 +35,7 @@ const connectAvance = (flowInstance) => (wrapped, stateInjector = true, actionIn
         }
 
         render() {
-            return createElement(wrapped, Object.assign({}, this.state, actionInjector, this.props));
+            return createElement(wrapped, Object.assign({}, this.state, actionHandlers, this.props));
         }
 
         static getWrappedComponent() {
