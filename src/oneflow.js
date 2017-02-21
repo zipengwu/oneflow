@@ -25,17 +25,10 @@ class Oneflow {
             .filter(({update}) => update instanceof Object && Object.keys(update).length)
             .publishBehavior({update: {}, state: {}});
         this.state$.connect();
-        this.next = (action) => this.action$.next(action);
     }
 
     applyMiddlewares(...middlewares) {
-        if (middlewares.length) {
-            let combine = compose(...middlewares);
-            this.next = (action, meta) => this.action$.next(combine(action, meta));
-        }
-        else {
-            this.next = (action) => this.action$.next(action);
-        }
+        this.combine = middlewares.length ? compose(...middlewares) : null;
     }
 
     subscribe(observer) {
@@ -44,11 +37,17 @@ class Oneflow {
 
     action(action, name) {
         return (...args) => {
-            let meta = {
+            let mutate = action(...args);
+            if(this.combine) {
+                let meta = {
                 '@@ACTION': name ? name : action.name,
                 '@@ACTION_PARAMS': args
+                }
+                this.action$.next(this.combine(mutate, meta));
             }
-            this.next(action(...args), meta);
+            else {
+                this.action$.next(mutate);
+            }
         }
     }
 
