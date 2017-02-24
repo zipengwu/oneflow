@@ -39,6 +39,18 @@ describe('oneflow instance spec: ', () => {
         expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         subscription.unsubscribe();
     });
+
+    it('Simple action with no state inject works', () => {
+        oneflow.initState({});
+        let action = oneflow.action(params => params);
+        let change;
+        let subscription = oneflow.subscribe(update => change = update);
+        action({hello: true});
+        expect(change).to.deep.equal({hello: true});
+        action({name: "hello"});
+        expect(change).to.deep.equal({name: "hello"});
+        subscription.unsubscribe();
+    });
 });
 
 describe('Middlewares spec: ', () => {

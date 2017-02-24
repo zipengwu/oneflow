@@ -18,7 +18,7 @@ class Oneflow {
         this.name = name;
         this.action$ = new Rx.Subject();
         this.state$ = this.action$.scan(({state}, mutate) => {
-                let update = mutate(state);
+                let update = mutate instanceof Function ? mutate(state) : mutate;
                 return {state: Object.assign(state, update), update};
             }
             , {state: {}})
