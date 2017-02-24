@@ -54,13 +54,13 @@ describe('oneflow instance spec: ', () => {
 });
 
 describe('Middlewares spec: ', () => {
-    const middleware = (action, meta) => (state) => {
+    const middleware = (action, meta, flow) => (state) => {
         let update = action(state);
         update.actionName = meta['@@ACTION'];
         return update;
     }
 
-    const middleware2 = (action, meta) => (state) => {
+    const middleware2 = (action, meta, flow) => (state) => {
         let update = action(state);
         update.actionName = meta['@@ACTION'].replace('Action', 'Func');
         update.tag = 'middleware2'

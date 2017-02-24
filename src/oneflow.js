@@ -43,7 +43,7 @@ class Oneflow {
                 '@@ACTION': name ? name : action.name,
                 '@@ACTION_PARAMS': args
                 }
-                this.action$.next(this.combine(mutate, meta));
+                this.action$.next(this.combine(mutate, meta, this));
             }
             else {
                 this.action$.next(mutate);
