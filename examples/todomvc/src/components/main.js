@@ -2,7 +2,7 @@ import React from "react";
 import TodoItem from "./item";
 import {toggleAll} from "../actions/index";
 import {ACTIVE_TODOS, COMPLETED_TODOS} from "../constants";
-import * as flow from "oneflow";
+import {connect} from "oneflow";
 
 export const Main = ({todos, showing, onToggleAll}) => {
 	return todos.length === 0 ? null : (
@@ -33,13 +33,10 @@ export const Main = ({todos, showing, onToggleAll}) => {
 	)
 }
 
-const stateInjector = {
-	todos: true,
-	showing: false
-}
+const stateInjector = (state) => ({todos: state.todos})
 
 const actionInjector = {
 	onToggleAll: toggleAll
 }
 
-export default flow.connect(Main, stateInjector, actionInjector)
+export default connect(Main, stateInjector, actionInjector)

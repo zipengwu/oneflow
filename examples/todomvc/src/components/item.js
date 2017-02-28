@@ -2,7 +2,7 @@ import React, {PropTypes} from "react";
 import classNames from "classnames";
 import {ESCAPE_KEY, ENTER_KEY} from "../constants";
 import {toggleTodo, editTodo, deleteTodo} from "../actions/index";
-import * as flow from "oneflow";
+import {connect} from "oneflow";
 
 export class Item extends React.Component {
 	state = {text: this.props.todo.title}
@@ -62,10 +62,7 @@ export class Item extends React.Component {
 	}
 }
 
-const stateInjector = {
-	todo: false,
-	editing: true
-}
+const stateInjector = (state) => ({editing: state.editing})
 
 const actionInjector = {
 	onToggle: toggleTodo,
@@ -75,4 +72,4 @@ const actionInjector = {
 	onDelete: deleteTodo
 }
 
-export default flow.connect(Item, stateInjector, actionInjector)
+export default connect(Item, stateInjector, actionInjector)

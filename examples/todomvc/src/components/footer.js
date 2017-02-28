@@ -3,7 +3,7 @@ import {pluralize} from "../utils";
 import {ACTIVE_TODOS, COMPLETED_TODOS, ALL_TODOS} from "../constants";
 import {IndexLink} from "react-router";
 import {clearCompleted} from "../actions/index";
-import * as flow from "oneflow";
+import {connect} from "oneflow";
 
 export const Footer = ({count, completedCount, onClearCompleted}) => {
 	let activeCount = count - completedCount;
@@ -34,11 +34,13 @@ export const Footer = ({count, completedCount, onClearCompleted}) => {
 		: null;
 }
 
-const stateInjector = {
-	count: state => state.todos.length,
-	completedCount: state => state.todos.filter(todo => todo.completed).length
+const stateInjector = (state) => {
+	return {
+		count: state.todos.length,
+		completedCount: state.todos.filter(todo => todo.completed).length
+	}
 }
 
 const actionInjector = {onClearCompleted: clearCompleted}
 
-export default flow.connect(Footer, stateInjector, actionInjector)
+export default connect(Footer, stateInjector, actionInjector)

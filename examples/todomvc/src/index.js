@@ -6,11 +6,11 @@ import {store} from "./utils";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import Main from "./components/main";
-import * as flow from "oneflow";
+import {oneflow} from "oneflow";
 
 const KEY = 'oneflow-todos';
-flow.initState({todos: store(KEY)})
-flow.subscribe(({todos}) => todos && store(KEY, todos));
+oneflow.initState({todos: store(KEY)})
+oneflow.subscribe(({todos}) => todos && store(KEY, todos));
 
 const App = ({params}) => (
 	<section className='todoapp'>

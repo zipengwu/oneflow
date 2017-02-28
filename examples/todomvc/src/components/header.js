@@ -1,7 +1,7 @@
 import React from "react";
 import {addTodo} from "../actions/index";
 import {ENTER_KEY} from "../constants";
-import * as flow from "oneflow";
+import {connect} from "oneflow";
 
 export class Header extends React.Component {
 	state = {text: ''}
@@ -33,4 +33,4 @@ const actionInjector = {
 	onSubmit: addTodo
 }
 
-export default flow.connect(Header, false, actionInjector)
+export default connect(Header, false, actionInjector)
