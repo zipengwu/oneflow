@@ -51,16 +51,14 @@ class Oneflow {
         }
     }
 
-    initState(state) {
-        this.action$.next(currentState => {
-            if (currentState) {
-                Object.keys(currentState).forEach(key => {
-                    delete currentState[key]
+    initState = this.action((newState) => (state) => {
+            if (state) {
+                Object.keys(state).forEach(key => {
+                    delete state[key]
                 });
             }
-            return state;
-        });
-    }
+            return newState;
+        }, 'initState')
 
     static instance(name) {
         if (!this.instances[name]) {
