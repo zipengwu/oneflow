@@ -1,11 +1,14 @@
 import {oneflow} from './oneflow';
 import {expect} from 'chai';
 
-const dummyStateAction = (params) => (state) => params
-const next = oneflow.action(dummyStateAction)
+const dummyState = (params) => (state) => params
+const dummyState$ = oneflow.action(dummyState)
 
-const calculateAction = (a, b) => ({result}) => ({result: (result | 0 + a) * b})
-const calculate = oneflow.action(calculateAction)
+const nullState = (params) => null
+const nullState$ = oneflow.action(nullState)
+
+const calculate = (a, b) => ({result}) => ({result: (result | 0 + a) * b})
+const calculate$ = oneflow.action(calculate)
 
 describe('oneflow instance spec: ', () => {
     it('initState will reset scan accumulator', () => {
@@ -13,11 +16,11 @@ describe('oneflow instance spec: ', () => {
         let currentState = {};
         let subscription = oneflow.subscribe((update, state) => currentState = state);
         expect(currentState).to.deep.equal({});
-        next({name: "hello"});
+        dummyState$({name: "hello"});
         expect(currentState).to.deep.equal({name: "hello"});
-        next({value: "value2"});
+        dummyState$({value: "value2"});
         expect(currentState).to.deep.equal({name: "hello", value: "value2"});
-        next({init: 'init'});
+        dummyState$({init: 'init'});
         expect(currentState).to.deep.equal({name: "hello", value: "value2", init: 'init'});
         oneflow.initState({init: 'init'});
         expect(currentState).to.deep.equal({init: 'init'});
@@ -29,11 +32,11 @@ describe('oneflow instance spec: ', () => {
         oneflow.initState({});
         let subscription = oneflow.subscribe((update, state) => state1 = state);
         expect(state1).to.deep.equal({});
-        next({name: "hello"});
+        dummyState$({name: "hello"});
         expect(state1).to.deep.equal({name: "hello"});
         subscription.unsubscribe();
-        next({value: "value2"});
-        next({init: 'init'});
+        dummyState$({value: "value2"});
+        dummyState$({init: 'init'});
         let state2 = {};
         subscription = oneflow.subscribe((update, state) => state2 = state);
         expect(state2).to.deep.equal({name: "hello", value: "value2", init: 'init'});
@@ -54,19 +57,6 @@ describe('oneflow instance spec: ', () => {
 });
 
 describe('Middlewares spec: ', () => {
-    const middleware = (action, meta, flow) => (state) => {
-        let update = action(state);
-        update.actionName = meta['@@ACTION'];
-        return update;
-    }
-
-    const middleware2 = (action, meta, flow) => (state) => {
-        let update = action(state);
-        update.actionName = meta['@@ACTION'].replace('Action', 'Func');
-        update.tag = 'middleware2'
-        return update;
-    }
-
     beforeEach(() => {
         oneflow.initState({});
     });
@@ -75,40 +65,71 @@ describe('Middlewares spec: ', () => {
         oneflow.applyMiddlewares();
     });
 
+    const middleware = (mutate, meta, flow) => {
+        return mutate instanceof Function ? 
+            state => Object.assign({}, mutate(state), {
+                action: meta['@@ACTION'],
+                middleware: 1
+            })
+            :
+            Object.assign({}, mutate, {
+                action: meta['@@ACTION'],
+                middleware: 1
+            })
+    }
+
+    const middleware2 = (mutate, meta, flow) => {
+        return mutate instanceof Function ? 
+            state => Object.assign({}, mutate(state), { middleware: 2 })
+            :
+            Object.assign({}, mutate, { middleware: 2 })
+    }
+
     it('middleware can read action meta info', () => {
-        let currentState;
+        let currentState = {}
+        let subscription = oneflow.subscribe((update, state) => currentState = state);
         oneflow.applyMiddlewares(middleware)
-        oneflow.subscribe((update, state) => currentState = state);
         expect(currentState).to.deep.equal({});
-        next({a: 1, b: 2});
-        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateAction'});
-        calculate(1, 2);
-        expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, actionName: 'calculateAction'});
+        dummyState$({a: 1, b: 2});
+        expect(currentState).to.deep.equal({a: 1, b: 2, action: 'dummyState', middleware: 1});
+        calculate$(1, 2);
+        expect(currentState).to.deep.equal({a: 1, b: 2, result: 2, action: 'calculate', middleware: 1});
+        subscription.unsubscribe();
     });
 
     it('Apply middlewares cumulative and in right order', () => {
-        let currentState;
+        let currentState = {}
+        let subscription = oneflow.subscribe((update, state) => currentState = state);
         oneflow.applyMiddlewares(middleware2, middleware)
-        oneflow.subscribe((update, state) => currentState = state);
         expect(currentState).to.deep.equal({});
-        next({a: 1, b: 2});
-        expect(currentState).to.deep.equal({a: 1, b: 2, actionName: 'dummyStateFunc', tag: 'middleware2'});
-        calculate(1, 2);
+        dummyState$({a: 1, b: 2});
+        expect(currentState).to.deep.equal({a: 1, b: 2, action: 'dummyState', middleware: 2});
+        calculate$(1, 2);
         expect(currentState).to.deep.equal({
             a: 1,
             b: 2,
             result: 2,
-            actionName: 'calculateFunc',
-            tag: 'middleware2'
+            action: 'calculate',
+            middleware: 2
         });
+        subscription.unsubscribe();
     });
 
     it('initState can be monitor by middleware', () => {
         let metainfo;
-        const metaMonitor = (action, meta, flow) => (state) => metainfo = meta;
+        const metaMonitor = (action, meta, flow) => metainfo = meta;
         oneflow.applyMiddlewares(metaMonitor);
         oneflow.initState({count: 0});
         expect(metainfo['@@ACTION']).to.be.equal('initState');
+    });
+
+    it('action return null can work with middleware', () => {
+        let currentState;
+        let subscription = oneflow.subscribe((update, state) => currentState = state);
+        oneflow.applyMiddlewares(middleware)
+        nullState$({a: 1, b: 2});
+        expect(currentState).to.deep.equal({action: 'nullState', middleware: 1});
+        subscription.unsubscribe();
     });
 });
 
