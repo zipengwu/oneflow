@@ -102,5 +102,13 @@ describe('Middlewares spec: ', () => {
             tag: 'middleware2'
         });
     });
+
+    it('initState can be monitor by middleware', () => {
+        let metainfo;
+        const metaMonitor = (action, meta, flow) => (state) => metainfo = meta;
+        oneflow.applyMiddlewares(metaMonitor);
+        oneflow.initState({count: 0});
+        expect(metainfo['@@ACTION']).to.be.equal('initState');
+    });
 });
 
