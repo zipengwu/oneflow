@@ -1,6 +1,7 @@
 import {Component, createElement} from 'react';
 import {oneflow} from './oneflow';
 
+// test pr 123
 const connectAvance = (flowInstance) => (wrapped, stateInjector = true, actionInjector = {}, watch) => {
     let stateflow
     if (stateInjector) {
